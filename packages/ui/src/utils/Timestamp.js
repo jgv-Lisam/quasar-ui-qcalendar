@@ -539,7 +539,7 @@ export function getEndOfWeek(timestamp, weekdays, today, calendarType = 'gregory
   let end = copyTimestamp(timestamp)
   // is last day of month?
   const lastDay = daysInMonth(end.year, end.month, calendarType)
-  if (lastDay === end.day || end.weekday === 6) {
+  if (lastDay === end.day || end.weekday === weekdays[weekdays.length - 1]) {
     while (!weekdays.includes(end.weekday)) {
       end = prevDay(end)
     }
