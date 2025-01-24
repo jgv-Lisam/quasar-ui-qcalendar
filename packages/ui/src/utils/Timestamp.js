@@ -435,16 +435,12 @@ const hebrewMonths = {
 }
 
 /**
- * Returns today's date in the specified locale.
+ * Returns today's date formatted as a string based on the specified calendar type and locale.
  *
- * @param {string} [locale='en-US'] - The locale to use for formatting the date.
- *
- * @returns {string} - Today's date in the format 'YYYY-MM-DD'.
- *
- * @example
- * today('en-US') // '2022-12-31'
- * today('fr-FR') // '31/12/2022'
- * today('ar-EG') // '١٤٤٤/١٢/٣١'
+ * @param {string} [calendarType='gregory'] - The calendar system to use. Defaults to Gregorian calendar.
+ * @param {string} [locale='en-US'] - The locale to use for date formatting. Defaults to 'en-US'.
+ * @returns {string} Today's date formatted as 'YYYY-MM-DD'. For non-Gregorian calendars,
+ *                   the format may vary but will always be hyphen-separated.
  */
 export function today(calendarType = 'gregory', locale = 'en-US') {
   const d = new Date()
@@ -470,6 +466,14 @@ export function today(calendarType = 'gregory', locale = 'en-US') {
   return [year, month, day].join('-')
 }
 
+/**
+ * Returns today's date and time formatted as a string based on the specified calendar type and locale.
+ *
+ * @param {string} [calendarType='gregory'] - The calendar system to use. Defaults to Gregorian calendar.
+ * @param {string} [locale='en-US'] - The locale to use for date and time formatting. Defaults to 'en-US'.
+ * @returns {string} Today's date and time formatted as 'YYYY-MM-DD-HH HH:MM'. For non-Gregorian calendars,
+ *                   the date format may vary but will always be hyphen-separated, followed by space and time.
+ */
 export function todayWithTime(calendarType = 'gregory', locale = 'en-US') {
   const d = new Date()
   const options = {
@@ -492,13 +496,16 @@ export function todayWithTime(calendarType = 'gregory', locale = 'en-US') {
   if (calendarType === 'hebrew' && isNaN(month)) {
     month = hebrewMonths[month] || month
   }
-  return [year, month, day, hour].join('-') + ' ' + [hour, minute].join(':')
+  return [year, month, day].join('-') + ' ' + [hour, minute].join(':')
 }
 
 /**
- * Takes a date string ('YYYY-MM-DD') and validates if it is today's date
- * @param {string} date Date string in the form 'YYYY-MM-DD'
- * @returns {boolean} True if the date is today's date
+ * Checks if a given date string is today's date in the specified calendar system and locale.
+ *
+ * @param {string} date - The date string to check, expected in the format 'YYYY-MM-DD'.
+ * @param {string} [calendarType='gregory'] - The calendar system to use. Defaults to Gregorian calendar.
+ * @param {string} [locale='en-US'] - The locale to use for date formatting. Defaults to 'en-US'.
+ * @returns {boolean} Returns true if the given date is today's date, false otherwise.
  */
 export function isToday(date, calendarType = 'gregory', locale = 'en-US') {
   return date === today(calendarType, locale)
@@ -528,12 +535,13 @@ export function getStartOfWeek(timestamp, weekdays, today) {
 }
 
 /**
- * Returns the end of the week give a {@link Timestamp} and weekdays (in which it finds the day representing the last of the week).
- * If today {@link Timestamp} is passed in then this is used to update relative information in the returned {@link Timestamp}.
- * @param {Timestamp} timestamp The {@link Timestamp} to use to find the end of the week
- * @param {number[]} weekdays The array is [0,1,2,3,4,5,6] where 0=Sunday and 6=Saturday
- * @param {Timestamp=} today If passed in then the {@link Timestamp} is updated with relative information
- * @returns {Timestamp} The {@link Timestamp} representing the end of the week
+ * Calculates the end of the week based on the given timestamp and weekdays.
+ *
+ * @param {Object} timestamp - The initial timestamp object to start calculations from.
+ * @param {number[]} weekdays - An array of numbers representing the days of the week (0-6, where 0 is Sunday).
+ * @param {Object} [today] - Optional timestamp representing the current date, used for relative date calculations.
+ * @param {string} [calendarType='gregory'] - The calendar system to use, defaults to Gregorian.
+ * @returns {Object} A new timestamp object representing the end of the week.
  */
 export function getEndOfWeek(timestamp, weekdays, today, calendarType = 'gregory') {
   let end = copyTimestamp(timestamp)

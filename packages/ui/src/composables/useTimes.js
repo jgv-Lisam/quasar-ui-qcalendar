@@ -2,7 +2,9 @@ import { reactive, computed, watch } from 'vue'
 import {
   validateTimestamp,
   parseTimestamp,
-  parseDate
+  todayWithTime,
+  updateFormatted,
+  parsed,
 } from '../utils/Timestamp.js'
 
 /**
@@ -12,9 +14,9 @@ import {
 export const useTimesProps = {
   now: {
     type: String,
-    validator: v => v === '' || validateTimestamp(v),
-    default: ''
-  }
+    validator: (v) => v === '' || validateTimestamp(v),
+    default: '',
+  },
 }
 
 /**
@@ -27,7 +29,7 @@ export default function (props) {
    */
   const times = reactive({
     now: parseTimestamp('0000-00-00 00:00'),
-    today: parseTimestamp('0000-00-00')
+    today: parseTimestamp('0000-00-00'),
   })
 
   /**
@@ -38,12 +40,15 @@ export default function (props) {
   /**
    * watcher if parsedNow should change
    */
-  watch(() => parsedNow, val => updateCurrent(val))
+  watch(
+    () => parsedNow,
+    (val) => updateCurrent(val),
+  )
 
   /**
    * sets 'times.now' (relative) to 'times.today' (relative)
    */
-  function setCurrent () {
+  function setCurrent() {
     times.now.current = times.today.current = true
     times.now.past = times.today.past = false
     times.now.future = times.today.future = false
@@ -52,7 +57,7 @@ export default function (props) {
   /**
    * updates current dates
    */
-  function updateCurrent () {
+  function updateCurrent() {
     const now = parsedNow.value || getNow()
     updateDay(now, times.now)
     updateTime(now, times.now)
@@ -62,8 +67,8 @@ export default function (props) {
   /**
    * return 'Timestamp' with current date and time
    */
-  function getNow () {
-    return parseDate(new Date())
+  function getNow() {
+    return updateFormatted(parsed(todayWithTime(props.calendarType, props.locale)))
   }
 
   /**
@@ -71,7 +76,7 @@ export default function (props) {
    * @param {Timestamp} now
    * @param {Timestamp} target
    */
-  function updateDay (now, target) {
+  function updateDay(now, target) {
     if (now.date !== target.date) {
       target.year = now.year
       target.month = now.month
@@ -86,7 +91,7 @@ export default function (props) {
    * @param {Timestamp} now
    * @param {Timestamp} target
    */
-  function updateTime (now, target) {
+  function updateTime(now, target) {
     if (now.time !== target.time) {
       target.hour = now.hour
       target.minute = now.minute
@@ -101,6 +106,6 @@ export default function (props) {
     updateCurrent,
     getNow,
     updateDay,
-    updateTime
+    updateTime,
   }
 }
