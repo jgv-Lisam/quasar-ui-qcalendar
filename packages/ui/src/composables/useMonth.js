@@ -116,7 +116,6 @@ export default function (
     const start = __getStartOfWeek(day)
     const end = __getEndOfWeek(day)
 
-    debugger
     return createDayList(
       start,
       end,
