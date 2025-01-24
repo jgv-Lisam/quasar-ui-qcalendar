@@ -189,23 +189,198 @@ export function padNumber(x, length) {
   return padded
 }
 
+export const calendarTypesMap = {
+  buddhist: {
+    isLeapYear: isBuddhistLeapYear, // Regular leap year logic
+    isGreatLeapYear: isBuddhistGreatLeapYear, // Great leap year logic
+    days_in_month: [29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30],
+    days_in_month_leap: [29, 30, 30, 30, 29, 30, 29, 30, 29, 30, 29, 30, 30], // Extra Āṣāḍha / Waso
+    days_in_month_great_leap: [29, 30, 30, 30, 30, 30, 29, 30, 29, 30, 29, 30, 30], // Extra day in Jyaiṣṭha
+  },
+  ethiopic: {
+    // The Ethiopic calendar has 13 months: 12 months of 30 days and a 13th month of 5 or 6 days depending on whether it's a leap year.
+    isLeapYear: isEthiopicLeapYear,
+    days_in_month: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 5],
+    days_in_month_leap: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 6],
+  },
+  gregory: {
+    isLeapYear: isGregorianLeapYear,
+    days_in_month: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+    days_in_month_leap: [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+  },
+  hebrew: {
+    // A leap year occurs 7 times in a 19-year cycle, where an extra month (Adar II) is added.
+    isLeapYear: isHebrewLeapYear,
+    days_in_month: [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 29], // varies by year
+    days_in_month_leap: [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 30],
+  },
+  islamic: {
+    // A leap year adds an extra day to the last month (Dhu al-Hijjah), occurring 11 times in a 30-year cycle.
+    isLeapYear: isIslamicLeapYear,
+    days_in_month: [
+      30, // Muharram
+      29, // Safar
+      30, // Rabi' I
+      29, // Rabi' II
+      30, // Jumada I
+      29, // Jumada II
+      30, // Rajab
+      29, // Shaabán
+      30, // Ramadân
+      29, // Shawwál
+      30, // Dhú'l-Q'ada
+      29, // Dhú'l-Hijjab
+    ],
+    days_in_month_leap: [30, 29, 30, 29, 30, 29, 30, 29, 30, 29, 30, 30],
+  },
+  persian: {
+    isLeapYear: isPersianLeapYear,
+    days_in_month: [
+      31, // Farvardin
+      31, // Ordibehesht
+      31, // Khordad
+      31, // Tir
+      31, // Mordad
+      31, // Shahrivar
+      30, // Mehr
+      30, // Aban
+      30, // Azar
+      30, // Dey
+      30, // Bahman
+      29, // Esfand
+    ],
+    days_in_month_leap: [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30],
+  },
+}
+
+/**
+ * Determines if a given year is a leap year based on the specified calendar type.
+ *
+ * @param {number} year - The year to check for leap year status.
+ * @param {string} [calendarType='gregory'] - The calendar system to use for the leap year calculation.
+ *                                            Defaults to 'gregory' (Gregorian calendar).
+ * @returns {boolean} True if the year is a leap year in the specified calendar system, false otherwise.
+ * @throws {Error} If an unsupported calendar type is provided.
+ */
+export function isLeapYear(year, calendarType = 'gregory') {
+  const calendar = calendarTypesMap[calendarType]
+  if (!calendar) {
+    throw new Error(`Unsupported calendar type: ${calendarType}`)
+  }
+  return calendar.isLeapYear(year)
+}
+
 /**
  * Returns if the passed year is a leap year
  * @param {number} year The year to check (ie: 1999, 2020)
  * @returns {boolean} True if the year is a leap year
  */
-export function isLeapYear(year) {
+export function isGregorianLeapYear(year) {
   return ((year % 4 === 0) ^ (year % 100 === 0) ^ (year % 400 === 0)) === 1
 }
 
 /**
- * Returns the days of the specified month in a year
- * @param {number} year The year (ie: 1999, 2020)
- * @param {number} month The month (zero-based)
- * @returns {number} The number of days in the month (corrected for leap years)
+ * Determines if a given year is a leap year in the Persian calendar.
+ * This function uses the algorithm for calculating Persian leap years.
+ *
+ * @param {number} year - The Persian year to check for leap year status.
+ * @returns {boolean} Returns true if the given year is a leap year in the Persian calendar, false otherwise.
  */
-export function daysInMonth(year, month) {
-  return isLeapYear(year) ? DAYS_IN_MONTH_LEAP[month] : DAYS_IN_MONTH[month]
+export function isPersianLeapYear(year) {
+  const a = year - 474
+  const b = (((a % 2820) + 2820) % 2820) + 474 // Ensure positive modulo
+  return ((b + 38) * 682) % 2816 < 682
+}
+
+/**
+ * Determines if a year is a leap year in the Islamic calendar.
+ * A leap year occurs 11 times in a 30-year cycle, adding an extra day to the last month.
+ * @param {number} year
+ * @returns {boolean}
+ */
+export function isIslamicLeapYear(year) {
+  const leapYearPositions = [2, 5, 8, 10, 13, 16, 18, 21, 24, 26, 29] // Updated positions
+  const cyclePosition = ((year - 1) % 30) + 1 // Position in the 30-year cycle
+  return leapYearPositions.includes(cyclePosition)
+}
+
+/**
+ * Determines if a year is a leap year in the Hebrew calendar.
+ * A leap year occurs 7 times in a 19-year cycle, adding a month (Adar II).
+ * @param {number} year
+ * @returns {boolean}
+ */
+export function isHebrewLeapYear(year) {
+  // Calculate the year in the 19-year Metonic cycle
+  const cycleYear = year % 19 || 19 // Ensure the cycle year is in the range 1–19
+  return [3, 6, 8, 11, 14, 17, 19].includes(cycleYear)
+}
+
+/**
+ * Determines if a given year is a leap year in the Ethiopic calendar.
+ * In the Ethiopic calendar, a year is a leap year if it is divisible by 4.
+ *
+ * @param {number} year - The Ethiopic year to check for leap year status.
+ * @returns {boolean} Returns true if the given year is a leap year in the Ethiopic calendar, false otherwise.
+ */
+export function isEthiopicLeapYear(year) {
+  return year % 4 === 0
+}
+
+/**
+ * Determines if a given year is a leap year in the Buddhist calendar.
+ * The Buddhist calendar uses a 19-year Metonic cycle for leap years.
+ *
+ * @param {number} year - The Buddhist year to check for leap year status.
+ * @returns {boolean} Returns true if the given year is a leap year in the Buddhist calendar, false otherwise.
+ */
+export function isBuddhistLeapYear(year) {
+  const cycleYear = ((year - 1) % 19) + 1 // 19-year cycle
+  const leapYears = [2, 5, 8, 10, 13, 16, 19] // Leap years in the cycle
+  return leapYears.includes(cycleYear)
+}
+
+/**
+ * Determines if a given year is a Great Leap Year in the Buddhist calendar.
+ * The Buddhist calendar uses a 57-year cycle for Great Leap Years.
+ *
+ * @param {number} year - The Buddhist year to check for Great Leap Year status.
+ * @returns {boolean} Returns true if the given year is a Great Leap Year in the Buddhist calendar, false otherwise.
+ */
+export function isBuddhistGreatLeapYear(year) {
+  const cycle = 57
+  const greatLeapYears = [3, 6, 9, 11, 14, 17, 20, 22, 25, 28, 30] // Great leap years in a 57-year cycle
+  const modYear = ((year - 1) % cycle) + 1
+  return greatLeapYears.includes(modYear)
+}
+
+/**
+ * Calculates the number of days in a given month for a specific year and calendar type.
+ *
+ * @param {number} year - The year for which to calculate the number of days.
+ * @param {number} month - The month (1-12) for which to calculate the number of days.
+ * @param {string} [calendarType='gregory'] - The calendar system to use. Defaults to Gregorian ('gregory').
+ * @returns {number} The number of days in the specified month and year for the given calendar type.
+ * @throws {Error} If an unsupported calendar type is provided.
+ */
+export function daysInMonth(year, month, calendarType = 'gregory') {
+  const calendar = calendarTypesMap[calendarType]
+  if (!calendar) {
+    throw new Error(`Unsupported calendar type: ${calendarType}`)
+  }
+
+  // Special check for Buddhist calendar and great leap years
+  if (calendarType === 'buddhist' && calendar.isGreatLeapYear && calendar.isGreatLeapYear(year)) {
+    return calendar.days_in_month_great_leap[month - 1]
+  }
+
+  // Check for regular leap years
+  if (calendar.isLeapYear(year)) {
+    return calendar.days_in_month_leap[month - 1]
+  }
+
+  // Default to common year days
+  return calendar.days_in_month[month - 1]
 }
 
 /**
@@ -242,17 +417,82 @@ export function prevDay(timestamp) {
   )
 }
 
-/**
- * Returns today's date
- * @returns {string} Date string in the form 'YYYY-MM-dd'
- */
-export function today() {
-  const d = new Date(),
-    month = '' + (d.getMonth() + 1),
-    day = '' + d.getDate(),
-    year = d.getFullYear()
+const hebrewMonths = {
+  Nisan: '01',
+  Iyar: '02',
+  Sivan: '03',
+  Tammuz: '04',
+  Av: '05',
+  Elul: '06',
+  Tishrei: '07',
+  Cheshvan: '08',
+  Kislev: '09',
+  Tevet: '10',
+  Shevat: '11',
+  Adar: '12',
+  'Adar I': '12',
+  'Adar II': '13',
+}
 
-  return [year, padNumber(month, 2), padNumber(day, 2)].join('-')
+/**
+ * Returns today's date in the specified locale.
+ *
+ * @param {string} [locale='en-US'] - The locale to use for formatting the date.
+ *
+ * @returns {string} - Today's date in the format 'YYYY-MM-DD'.
+ *
+ * @example
+ * today('en-US') // '2022-12-31'
+ * today('fr-FR') // '31/12/2022'
+ * today('ar-EG') // '١٤٤٤/١٢/٣١'
+ */
+export function today(calendarType = 'gregory', locale = 'en-US') {
+  const d = new Date()
+  const options = {
+    calendar: calendarType,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: 'UTC',
+  }
+  const formatter = new Intl.DateTimeFormat(locale, options)
+  const parts = formatter.formatToParts(d)
+
+  const year = parts.find((part) => part.type === 'year').value
+  let month = parts.find((part) => part.type === 'month').value
+  const day = parts.find((part) => part.type === 'day').value
+
+  // Convert month name to numeric value for Hebrew calendar
+  if (calendarType === 'hebrew' && isNaN(month)) {
+    month = hebrewMonths[month] || month
+  }
+
+  return [year, month, day].join('-')
+}
+
+export function todayWithTime(calendarType = 'gregory', locale = 'en-US') {
+  const d = new Date()
+  const options = {
+    calendar: calendarType,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',
+  }
+  const formatter = new Intl.DateTimeFormat(locale, options)
+  const parts = formatter.formatToParts(d)
+  const year = parts.find((part) => part.type === 'year').value
+  let month = parts.find((part) => part.type === 'month').value
+  const day = parts.find((part) => part.type === 'day').value
+  const hour = parts.find((part) => part.type === 'hour').value
+  const minute = parts.find((part) => part.type === 'minute').value
+  // Convert month name to numeric value for Hebrew calendar
+  if (calendarType === 'hebrew' && isNaN(month)) {
+    month = hebrewMonths[month] || month
+  }
+  return [year, month, day, hour].join('-') + ' ' + [hour, minute].join(':')
 }
 
 /**
@@ -260,8 +500,8 @@ export function today() {
  * @param {string} date Date string in the form 'YYYY-MM-DD'
  * @returns {boolean} True if the date is today's date
  */
-export function isToday(date) {
-  return date === today()
+export function isToday(date, calendarType = 'gregory', locale = 'en-US') {
+  return date === today(calendarType, locale)
 }
 
 /**
@@ -295,10 +535,10 @@ export function getStartOfWeek(timestamp, weekdays, today) {
  * @param {Timestamp=} today If passed in then the {@link Timestamp} is updated with relative information
  * @returns {Timestamp} The {@link Timestamp} representing the end of the week
  */
-export function getEndOfWeek(timestamp, weekdays, today) {
+export function getEndOfWeek(timestamp, weekdays, today, calendarType = 'gregory') {
   let end = copyTimestamp(timestamp)
   // is last day of month?
-  const lastDay = daysInMonth(end.year, end.month)
+  const lastDay = daysInMonth(end.year, end.month, calendarType)
   if (lastDay === end.day || end.weekday === 6) {
     while (!weekdays.includes(end.weekday)) {
       end = prevDay(end)
@@ -325,13 +565,15 @@ export function getStartOfMonth(timestamp) {
 }
 
 /**
- * Finds the end of the month based on the passed in {@link Timestamp}
- * @param {Timestamp} timestamp The {@link Timestamp} to use to find the end of the month
- * @returns {Timestamp} A {@link Timestamp} of the end of the month
+ * Finds the end of the month based on the passed in timestamp and calendar type.
+ *
+ * @param {Timestamp} timestamp - The timestamp object to use as a reference.
+ * @param {string} [calendarType='gregory'] - The calendar system to use. Defaults to Gregorian ('gregory').
+ * @returns {Timestamp} A new timestamp object representing the end of the month.
  */
-export function getEndOfMonth(timestamp) {
+export function getEndOfMonth(timestamp, calendarType = 'gregory') {
   let end = copyTimestamp(timestamp)
-  end.day = daysInMonth(end.year, end.month)
+  end.day = daysInMonth(end.year, end.month, calendarType)
   end = updateFormatted(end)
   return end
 }
@@ -1145,13 +1387,13 @@ const weekdayDateMap = {
   Sat: new Date('2020-01-11T00:00:00.000Z'),
 }
 
-export function getWeekdayFormatter() {
+export function getWeekdayFormatter(calendarType = 'gregory') {
   // eslint-disable-next-line no-unused-vars
   const emptyFormatter = (_d, _t) => ''
   const options = {
-    long: { timeZone: 'UTC', weekday: 'long' },
-    short: { timeZone: 'UTC', weekday: 'short' },
-    narrow: { timeZone: 'UTC', weekday: 'narrow' },
+    long: { timeZone: 'UTC', weekday: 'long', calendar: calendarType },
+    short: { timeZone: 'UTC', weekday: 'short', calendar: calendarType },
+    narrow: { timeZone: 'UTC', weekday: 'narrow', calendar: calendarType },
   }
 
   /* istanbul ignore next */
@@ -1183,13 +1425,13 @@ export function getWeekdayNames(type, locale) {
   return shortWeekdays.map((weekday) => weekdayFormatter(weekday, type, locale))
 }
 
-export function getMonthFormatter() {
+export function getMonthFormatter(calendarType = 'gregory') {
   // eslint-disable-next-line no-unused-vars
   const emptyFormatter = (_m, _t) => ''
   const options = {
-    long: { timeZone: 'UTC', month: 'long' },
-    short: { timeZone: 'UTC', month: 'short' },
-    narrow: { timeZone: 'UTC', month: 'narrow' },
+    long: { timeZone: 'UTC', month: 'long', calendar: calendarType },
+    short: { timeZone: 'UTC', month: 'short', calendar: calendarType },
+    narrow: { timeZone: 'UTC', month: 'narrow', calendar: calendarType },
   }
 
   /* istanbul ignore next */
@@ -1239,59 +1481,62 @@ export default {
   FIRST_HOUR,
   Timestamp,
   TimeObject,
-  today,
-  getStartOfWeek,
-  getEndOfWeek,
-  getStartOfMonth,
-  getEndOfMonth,
-  parseTime,
-  validateTimestamp,
-  parsed,
-  parseTimestamp,
-  parseDate,
-  getDayIdentifier,
-  getTimeIdentifier,
-  getDayTimeIdentifier,
-  diffTimestamp,
-  updateRelative,
-  updateMinutes,
-  updateWeekday,
-  updateDayOfYear,
-  updateWorkWeek,
-  updateDisabled,
-  updateFormatted,
-  getDayOfYear,
-  getWorkWeek,
-  getWeekday,
-  isLeapYear,
-  daysInMonth,
+  addToDate,
+  compareDate,
+  compareDateTime,
+  compareTime,
+  compareTimestamps,
   copyTimestamp,
-  padNumber,
-  getDate,
-  getTime,
-  getDateTime,
-  nextDay,
-  prevDay,
-  relativeDays,
-  findWeekday,
-  getWeekdaySkips,
   createDayList,
   createIntervalList,
   createNativeLocaleFormatter,
-  makeDate,
-  makeDateTime,
-  validateNumber,
-  isBetweenDates,
-  isOverlappingDates,
   daysBetween,
-  weeksBetween,
-  addToDate,
-  compareTimestamps,
-  compareDate,
-  compareTime,
-  compareDateTime,
-  getWeekdayFormatter,
-  getWeekdayNames,
+  daysInMonth,
+  diffTimestamp,
+  findWeekday,
+  getDate,
+  getDateTime,
+  getDayIdentifier,
+  getDayOfYear,
+  getDayTimeIdentifier,
+  getEndOfMonth,
+  getEndOfWeek,
   getMonthFormatter,
   getMonthNames,
+  getStartOfMonth,
+  getStartOfWeek,
+  getTime,
+  getTimeIdentifier,
+  getWeekday,
+  getWeekdayFormatter,
+  getWeekdayNames,
+  getWeekdaySkips,
+  getWorkWeek,
+  isBetweenDates,
+  isLeapYear,
+  isOverlappingDates,
+  isPersianLeapYear,
+  isToday,
+  makeDate,
+  makeDateTime,
+  nextDay,
+  padNumber,
+  parseDate,
+  parseTime,
+  parseTimestamp,
+  parsed,
+  prevDay,
+  relativeDays,
+  today,
+  todayWithTime,
+  updateDayOfYear,
+  updateDisabled,
+  updateFormatted,
+  updateMinutes,
+  updateRelative,
+  updateWeekday,
+  updateWorkWeek,
+  validateNumber,
+  validateTimestamp,
+  weeksBetween,
 }

@@ -6,6 +6,22 @@
     "today": {
       "addedIn": "v2.2.1",
       "desc": "Returns today's date in YYYY-MM-DD format",
+      "params": {
+        "calendarType": {
+          "type": "String",
+          "desc": "The calendar type to use. Defaults to 'gregory'",
+          "__exemption": [
+            "examples"
+          ]
+        },
+        "locale": {
+          "type": "String",
+          "desc": "The locale to use. Defaults to 'en-US'",
+          "__exemption": [
+            "examples"
+          ]
+        }
+      },
       "returns": {
         "type": "String",
         "desc": "Returns today's date in YYYY-MM-DD format",
@@ -87,6 +103,13 @@
           "__exemption": [
             "examples"
           ]
+        },
+        "calendarType": {
+          "type": "String",
+          "desc": "The calendar type to use. Defaults to 'gregory'",
+          "__exemption": [
+            "examples"
+          ]
         }
       },
       "returns": {
@@ -128,6 +151,13 @@
           "tsType": "Timestamp",
           "required": true,
           "desc": "A timestamp object",
+          "__exemption": [
+            "examples"
+          ]
+        },
+        "calendarType": {
+          "type": "String",
+          "desc": "The calendar type to use. Defaults to 'gregory'",
           "__exemption": [
             "examples"
           ]
@@ -735,6 +765,13 @@
           "examples": [
             "2020",
             "2021"
+          ]
+        },
+        "calendarType": {
+          "type": "String",
+          "desc": "The calendar type to use. Defaults to 'gregory'",
+          "__exemption": [
+            "examples"
           ]
         }
       },

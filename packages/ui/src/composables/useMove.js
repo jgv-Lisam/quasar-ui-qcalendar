@@ -47,7 +47,7 @@ export default function (
    */
   function move(amount = 1) {
     if (amount === 0) {
-      emittedValue.value = today()
+      emittedValue.value = today(props.calendarType, props.locale)
       return
     }
     let moved = copyTimestamp(parsedValue.value)

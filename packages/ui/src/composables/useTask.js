@@ -194,19 +194,24 @@ export default function (
       return end
     } else if (props.view === 'week') {
       if (props.viewCount === 1) {
-        return getEndOfWeek(parseTimestamp(props.modelValue), props.weekdays, times.today)
+        return getEndOfWeek(
+          parseTimestamp(props.modelValue),
+          props.weekdays,
+          times.today,
+          props.calendarType,
+        )
       } else {
         let end = copyTimestamp(parsedStartDate.value)
         end = addToDate(end, { day: (props.viewCount - 1) * TIME_CONSTANTS.DAYS_IN.WEEK })
-        return getEndOfWeek(end, props.weekdays, times.today)
+        return getEndOfWeek(end, props.weekdays, times.today, props.calendarType)
       }
     } else if (props.view === 'month') {
       if (props.viewCount === 1) {
-        return getEndOfMonth(parseTimestamp(props.modelValue), props.weekdays, times.today)
+        return getEndOfMonth(parseTimestamp(props.modelValue), props.calendarType)
       } else {
         let end = copyTimestamp(parsedStartDate.value)
         end = addToDate(end, { month: props.viewCount })
-        return getEndOfMonth(end, props.weekdays, times.today)
+        return getEndOfMonth(end, props.calendarType)
       }
     } else {
       throw new Error(`QCalendarTask: unknown 'view' type (${props.view})`)

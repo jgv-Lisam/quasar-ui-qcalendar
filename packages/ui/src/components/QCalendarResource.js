@@ -303,7 +303,7 @@ export default defineComponent({
     // public functions
 
     function moveToToday() {
-      emittedValue.value = today()
+      emittedValue.value = today(props.calendarType, props.locale)
     }
 
     function next(amount = 1) {

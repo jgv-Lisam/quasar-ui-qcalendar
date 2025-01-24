@@ -20,6 +20,12 @@ export const useCommonProps = {
     default: today(),
     validator: (v) => v === '' || validateTimestamp(v),
   },
+  calendarType: {
+    type: String,
+    default: 'gregory',
+    validator: (v) =>
+      ['buddhist', 'ethiopic', 'gregory', 'hebrew', 'islamic', 'persian'].includes(v),
+  },
   weekdays: {
     type: Array,
     default: () => [0, 1, 2, 3, 4, 5, 6],
@@ -144,14 +150,14 @@ export default function (props, { startDate, endDate, times }) {
   // ))
 
   const dayFormatter = computed(() => {
-    const options = { timeZone: 'UTC', day: 'numeric' }
+    const options = { timeZone: 'UTC', day: 'numeric', calendar: props.calendarType }
 
     return createNativeLocaleFormatter(props.locale, (/*_tms, _short*/) => options)
   })
 
   const weekdayFormatter = computed(() => {
-    const longOptions = { timeZone: 'UTC', weekday: 'long' }
-    const shortOptions = { timeZone: 'UTC', weekday: 'short' }
+    const longOptions = { timeZone: 'UTC', weekday: 'long', calendar: props.calendarType }
+    const shortOptions = { timeZone: 'UTC', weekday: 'short', calendar: props.calendarType }
 
     return createNativeLocaleFormatter(props.locale, (_tms, short) =>
       short ? shortOptions : longOptions,
@@ -159,7 +165,7 @@ export default function (props, { startDate, endDate, times }) {
   })
 
   const ariaDateFormatter = computed(() => {
-    const longOptions = { timeZone: 'UTC', dateStyle: 'full' }
+    const longOptions = { timeZone: 'UTC', dateStyle: 'full', calendar: props.calendarType }
 
     return createNativeLocaleFormatter(props.locale, (/*_tms*/) => longOptions)
   })

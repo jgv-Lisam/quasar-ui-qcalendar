@@ -63,7 +63,7 @@ export default defineComponent({
     })
 
     function moveToToday() {
-      calendar.value.moveToToday()
+      calendar.value.moveToToday(props.calendarType, props.locale)
     }
 
     function move(amount = -1) {

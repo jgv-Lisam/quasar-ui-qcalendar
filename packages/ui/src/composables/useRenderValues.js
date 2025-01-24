@@ -21,14 +21,14 @@ export default function (props, { parsedView, parsedValue, times }) {
     switch (parsedView.value) {
       case 'month':
         start = getStartOfMonth(around)
-        end = getEndOfMonth(around)
-        maxDays = daysInMonth(start.year, start.month)
+        end = getEndOfMonth(around, props.calendarType)
+        maxDays = daysInMonth(start.year, start.month, props.calendarType)
         break
       case 'week':
       case 'week-agenda':
       case 'week-scheduler':
         start = getStartOfWeek(around, props.weekdays, times.today)
-        end = getEndOfWeek(start, props.weekdays, times.today)
+        end = getEndOfWeek(start, props.weekdays, times.today, props.calendarType)
         maxDays = props.weekdays.length
         break
       case 'day':
@@ -46,9 +46,9 @@ export default function (props, { parsedView, parsedValue, times }) {
       case 'month-scheduler':
       case 'month-agenda':
         start = getStartOfMonth(around)
-        end = getEndOfMonth(around)
+        end = getEndOfMonth(around, props.calendarType)
         end = updateFormatted(end)
-        maxDays = daysInMonth(start.year, start.month)
+        maxDays = daysInMonth(start.year, start.month, props.calendarType)
         break
       case 'resource':
         maxDays = 1

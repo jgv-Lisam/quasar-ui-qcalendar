@@ -116,6 +116,7 @@ export default function (
     const start = __getStartOfWeek(day)
     const end = __getEndOfWeek(day)
 
+    debugger
     return createDayList(
       start,
       end,
@@ -136,8 +137,8 @@ export default function (
    * and returns a formatted month name from the browser
    */
   const monthFormatter = computed(() => {
-    const longOptions = { timeZone: 'UTC', month: 'long' }
-    const shortOptions = { timeZone: 'UTC', month: 'short' }
+    const longOptions = { timeZone: 'UTC', month: 'long', calendar: props.calendarType }
+    const shortOptions = { timeZone: 'UTC', month: 'short', calendar: props.calendarType }
 
     return createNativeLocaleFormatter(props.locale, (_tms, short) =>
       short ? shortOptions : longOptions,
@@ -213,7 +214,7 @@ export default function (
    * @param {Timestamp} day The day in which to find the end of the week
    */
   function __getEndOfWeek(day) {
-    return getEndOfWeek(day, props.weekdays, times.today)
+    return getEndOfWeek(day, props.weekdays, times.today, props.calendarType)
   }
 
   /**
@@ -229,7 +230,7 @@ export default function (
    * @param {Timestamp} day The day in which to find the end of the month
    */
   function __getEndOfMonth(day) {
-    return getEndOfMonth(day)
+    return getEndOfMonth(day, props.calendarType)
   }
 
   /**

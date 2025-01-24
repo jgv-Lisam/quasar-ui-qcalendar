@@ -336,9 +336,9 @@ export default function (
     let tm = copyTimestamp(focusValue.value)
 
     if (parsedView.value === 'month' || parsedView.value === 'month-interval') {
-      tm = getEndOfMonth(tm)
+      tm = getEndOfMonth(tm, props.calendarType)
     } else if (parsedView.value === 'week') {
-      tm = getEndOfWeek(tm, props.weekdays, times.today)
+      tm = getEndOfWeek(tm, props.weekdays, times.today, props.calendarType)
     }
 
     while (weekdaySkips.value[tm.weekday] === 0) {

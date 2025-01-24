@@ -288,6 +288,7 @@ const examplesMenu = {
       name: 'Month',
       children: [
         { name: 'Alignment', path: '/examples/month/alignment' },
+        { name: 'Calendar Type', path: '/examples/month/calendar-type' },
         { name: 'Dark', path: '/examples/month/dark' },
         { name: 'Date Type', path: '/examples/month/date-type' },
         { name: 'Day Height', path: '/examples/month/day-height' },

@@ -363,7 +363,12 @@ export default function (
       hour: 'numeric',
       minute: '2-digit',
     }
-    const shortHourOptions = { timeZone: 'UTC', hour12: !props.hour24Format, hour: 'numeric' }
+    const shortHourOptions = {
+      timeZone: 'UTC',
+      hour12: !props.hour24Format,
+      hour: 'numeric',
+      calendar: props.calendarType,
+    }
 
     return createNativeLocaleFormatter(props.locale, (tms, short) =>
       short ? (tms.minute === 0 ? shortHourOptions : shortOptions) : longOptions,
@@ -378,7 +383,12 @@ export default function (
    * Note: This value also contains the time.
    */
   const ariaDateTimeFormatter = computed(() => {
-    const longOptions = { timeZone: 'UTC', dateStyle: 'full', timeStyle: 'short' }
+    const longOptions = {
+      timeZone: 'UTC',
+      dateStyle: 'full',
+      timeStyle: 'short',
+      calendar: props.calendarType,
+    }
 
     return createNativeLocaleFormatter(props.locale, (/*_tms*/) => longOptions)
   })
